@@ -57,8 +57,10 @@ class _PostCardState extends State<PostCard> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 IconButton(onPressed:widget.fristButtonOnPress, icon: widget.fristIcon),
+                Text("${(widget.post['likes'] as List).length}"),
                 IconButton(
                     onPressed: widget.secondButtonOnPress, icon: widget.secondIcon),
+                    Text("${(widget.post['comments'] as List).length}"),
               ],
             ),
           ],

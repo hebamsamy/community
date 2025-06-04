@@ -26,6 +26,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
     "timestamp":Timestamp.now(),
     "creatorId":FirebaseAuth.instance.currentUser!.uid,
     "creatoremail":FirebaseAuth.instance.currentUser!.email,
+    "likes": [],
+    "comments": []
   }).then((res){
     print(res);
     Navigator.of(context).pop();
