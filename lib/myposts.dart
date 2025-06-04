@@ -3,33 +3,30 @@ import 'package:community/post.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class MyPostsScreen extends StatefulWidget {
+  const MyPostsScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<MyPostsScreen> createState() => _MyPostsScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  var user = FirebaseAuth.instance.currentUser;
+class _MyPostsScreenState extends State<MyPostsScreen> {
   var posts = FirebaseFirestore.instance.collection("posts");
-  logout() async {
-    await FirebaseAuth.instance.signOut();
+  deletePost(String id){
+    posts.doc(id).delete().then((_){
+
+    }).catchError((err){
+      print(err);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+        return Scaffold(
       appBar: AppBar(
-        title: Text("Welcome ${user!.email}"),
+        title: Text("My Post"),
         actions: [
-          IconButton(
-              onPressed: () {
-                Navigator.of(context).pushNamed("myposts");
-              },
-              icon: Icon(Icons.list_alt_outlined)),
-          IconButton(onPressed: logout, icon: Icon(Icons.login)),
-        ],
+          ],
       ),
       floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
@@ -37,7 +34,10 @@ class _HomeScreenState extends State<HomeScreen> {
             Navigator.of(context).pushNamed("addpost");
           }),
       body: StreamBuilder(
-          stream: posts.snapshots(),
+          stream: posts
+          .where("creatorId",isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+          // .orderBy("timestamp",descending: true)
+          .snapshots(),
           builder: (context, responce) {
             if (responce.connectionState == ConnectionState.done ||
                 responce.connectionState == ConnectionState.active) {
@@ -45,8 +45,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 return ListView(
                     children: responce.data!.docs
                         .map((item) => PostCard(post: item.data(),
-                         fristButtonOnPress: (){}, fristIcon: Icon(Icons.favorite_border),
-                         secondButtonOnPress: (){}, secondIcon: Icon(Icons.comment_outlined),
+                         fristButtonOnPress: (){
+                          deletePost(item.id);
+                         }, fristIcon: Icon(Icons.delete,color: Colors.red,),
+                         secondButtonOnPress: (){}, secondIcon: Icon(Icons.edit, color: Colors.amber,),
                          ))
                         .toList());
               } else {
